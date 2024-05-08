@@ -17,7 +17,6 @@ type application struct {
 }
 
 func main() {
-
 	var config config
 
 	flag.StringVar(&config.Port, "port", ":4000", "Port to run the server on")
@@ -31,7 +30,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    config.Port,
 		Handler: app.routes(),
 	}
 
