@@ -11,7 +11,7 @@ func (app *application) getToyByID(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readParamID(r)
 
 	if err != nil {
-		app.badRequest(w, err)
+		app.badRequest(w, r, err)
 		return
 	}
 
@@ -19,17 +19,17 @@ func (app *application) getToyByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrRecordNotFound):
-			app.notFound(w)
+			app.notFound(w, r)
 		default:
-			app.internalServerError(w, err)
+			app.internalServerError(w, r, err)
 		}
 
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, toy)
+	err = app.writeJSON(w, http.StatusOK, envelope{"toy": toy})
 	if err != nil {
-		app.internalServerError(w, err)
+		app.internalServerError(w, r, err)
 	}
 }
 
@@ -44,7 +44,7 @@ func (app *application) createToy(w http.ResponseWriter, r *http.Request) {
 
 	err := app.readJSON(r, &input)
 	if err != nil {
-		app.badRequest(w, err)
+		app.badRequest(w, r, err)
 		return
 	}
 
@@ -57,25 +57,25 @@ func (app *application) createToy(w http.ResponseWriter, r *http.Request) {
 
 	err = app.toys.Create(toy)
 	if err != nil {
-		app.internalServerError(w, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, toy)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"toy": toy})
 	if err != nil {
-		app.internalServerError(w, err)
+		app.internalServerError(w, r, err)
 	}
 }
 
 func (app *application) getAllToys(w http.ResponseWriter, r *http.Request) {
 	toys, err := app.toys.GetAll()
 	if err != nil {
-		app.internalServerError(w, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, toys)
+	err = app.writeJSON(w, http.StatusOK, envelope{"toys": toys})
 	if err != nil {
-		app.internalServerError(w, err)
+		app.internalServerError(w, r, err)
 	}
 }

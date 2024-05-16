@@ -9,23 +9,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// TODO: Introduce structured error response
-func (app *application) internalServerError(w http.ResponseWriter, err error) {
-	app.logger.Error(err.Error())
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-}
+type envelope map[string]any
 
-// TODO: Introduce structured error response
-func (app *application) notFound(w http.ResponseWriter) {
-	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-}
-
-func (app *application) badRequest(w http.ResponseWriter, err error) {
-	app.logger.Error(err.Error())
-	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-}
-
-func (app *application) writeJSON(w http.ResponseWriter, statusCode int, data any) error {
+func (app *application) writeJSON(w http.ResponseWriter, statusCode int, data envelope) error {
 	json, err := json.Marshal(data)
 	if err != nil {
 		return err
