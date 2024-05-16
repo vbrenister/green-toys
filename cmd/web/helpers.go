@@ -9,11 +9,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// TODO: Introduce structured error response
 func (app *application) internalServerError(w http.ResponseWriter, err error) {
 	app.logger.Error(err.Error())
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
+// TODO: Introduce structured error response
 func (app *application) notFound(w http.ResponseWriter) {
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
@@ -34,6 +36,11 @@ func (app *application) writeJSON(w http.ResponseWriter, statusCode int, data an
 	w.Write(json)
 
 	return nil
+}
+
+// TODO: Handle JSON decoding errors
+func (app *application) readJSON(r *http.Request, v any) error {
+	return json.NewDecoder(r.Body).Decode(v)
 }
 
 func (app *application) readParamID(r *http.Request) (int, error) {

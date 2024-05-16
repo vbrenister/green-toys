@@ -2,40 +2,73 @@ package models
 
 import (
 	"errors"
-	"fmt"
 )
 
-type Condition int
+var ErrRecordNotFound = errors.New("record not found")
 
-const (
-	GoodCondition Condition = iota
-	FairCondition
-	PoorCondition
-)
+var nextId = 0
 
-type Toy struct {
-	ID          int       `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price"`
-	Rating      float64   `json:"rating"`
-	Condition   Condition `json:"condition"`
-	Category    string    `json:"category"`
+func generateID() int {
+	nextId++
+	return nextId
 }
 
-func (c Condition) MarshalJSON() ([]byte, error) {
-	var res string
+type Toy struct {
+	ID          int     `json:"id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Category    string  `json:"category"`
+}
 
-	switch c {
-	case GoodCondition:
-		res = "good"
-	case FairCondition:
-		res = "fair"
-	case PoorCondition:
-		res = "poor"
-	default:
-		return nil, errors.New("invalid condition")
+type ToyModel interface {
+	GetByID(id int) (*Toy, error)
+	Create(toy *Toy) error
+	GetAll() ([]*Toy, error)
+}
+
+type toyModel struct {
+	toys map[int]*Toy
+}
+
+func (m *toyModel) GetByID(id int) (*Toy, error) {
+	toy, ok := m.toys[id]
+	if !ok {
+		return nil, ErrRecordNotFound
 	}
 
-	return []byte(fmt.Sprintf("\"%s\"", res)), nil
+	return toy, nil
+}
+
+func (m *toyModel) Create(toy *Toy) error {
+	id := generateID()
+	toy.ID = id
+	m.toys[id] = toy
+
+	return nil
+}
+
+func (m *toyModel) GetAll() ([]*Toy, error) {
+	toys := make([]*Toy, 0, len(m.toys))
+
+	for _, toy := range m.toys {
+		toys = append(toys, toy)
+	}
+
+	return toys, nil
+}
+
+func NewToyModel() ToyModel {
+	firstID := generateID()
+	return &toyModel{
+		toys: map[int]*Toy{
+			firstID: {
+				ID:          firstID,
+				Title:       "Toy",
+				Description: "A toy",
+				Price:       10.00,
+				Category:    "Toy",
+			},
+		},
+	}
 }

@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+
+	"github.com/vbrenister/green-toys/internal/models"
 )
 
 type config struct {
@@ -14,6 +16,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
+	toys   models.ToyModel
 }
 
 func main() {
@@ -27,6 +30,7 @@ func main() {
 	app := &application{
 		config: config,
 		logger: logger,
+		toys:   models.NewToyModel(),
 	}
 
 	srv := &http.Server{
