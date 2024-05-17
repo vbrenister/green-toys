@@ -20,7 +20,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 
 func (app *application) requestLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.config.RequestLoggingEnabled {
+		if app.config.logging.requests {
 			var (
 				path   = r.URL.Path
 				method = r.Method

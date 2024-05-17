@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 
 	"github.com/vbrenister/green-toys/internal/validation"
@@ -38,6 +39,7 @@ type ToyModel interface {
 }
 
 type toyModel struct {
+	db   *sql.DB
 	toys map[int]*Toy
 }
 
@@ -68,9 +70,10 @@ func (m *toyModel) GetAll() ([]*Toy, error) {
 	return toys, nil
 }
 
-func NewToyModel() ToyModel {
+func NewToyModel(db *sql.DB) ToyModel {
 	firstID := generateID()
 	return &toyModel{
+		db: db,
 		toys: map[int]*Toy{
 			firstID: {
 				ID:          firstID,
