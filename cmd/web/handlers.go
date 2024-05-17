@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/vbrenister/green-toys/internal/models"
+	"github.com/vbrenister/green-toys/internal/validation"
 )
 
 func (app *application) getToyByID(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +34,6 @@ func (app *application) getToyByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO: Add validation rules
 func (app *application) createToy(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title       string  `json:"title"`
@@ -53,6 +53,13 @@ func (app *application) createToy(w http.ResponseWriter, r *http.Request) {
 		Description: input.Description,
 		Price:       input.Price,
 		Category:    input.Category,
+	}
+
+	v := validation.New()
+
+	if models.ValidateToy(v, toy); !v.Valid() {
+		app.failedValidation(w, r, v.Errors)
+		return
 	}
 
 	err = app.toys.Create(toy)

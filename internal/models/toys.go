@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+
+	"github.com/vbrenister/green-toys/internal/validation"
 )
 
 var ErrRecordNotFound = errors.New("record not found")
@@ -19,6 +21,13 @@ type Toy struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Category    string  `json:"category"`
+}
+
+func ValidateToy(v *validation.Validator, toy *Toy) {
+	v.Check(toy.Title != "", "title", "must be provided")
+	v.Check(toy.Description != "", "description", "must be provided")
+	v.Check(toy.Price > 0, "price", "must be greater than zero")
+	v.Check(toy.Category != "", "category", "must be provided")
 }
 
 type ToyModel interface {
