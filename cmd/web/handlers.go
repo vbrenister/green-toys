@@ -58,7 +58,7 @@ func (app *application) createToy(w http.ResponseWriter, r *http.Request) {
 	v := validation.New()
 
 	if models.ValidateToy(v, toy); !v.Valid() {
-		app.failedValidation(w, r, v.Errors)
+		app.errorResponse(w, r, http.StatusUnprocessableEntity, v.Errors)
 		return
 	}
 
@@ -82,6 +82,39 @@ func (app *application) getAllToys(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"toys": toys})
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+func (app *application) rentToy(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readParamID(r)
+	if err != nil {
+		app.notFound(w, r)
+		return
+	}
+
+	toy, err := app.toys.GetByID(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.notFound(w, r)
+		default:
+			app.internalServerError(w, r, err)
+		}
+
+		return
+	}
+
+	if toy.Rented {
+		app.failedValidation(w, r, map[string]string{"toy": "is already rented"})
+		return
+	}
+
+	// TODO: Use database
+	toy.Rented = true
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"toy": toy})
 	if err != nil {
 		app.internalServerError(w, r, err)
 	}

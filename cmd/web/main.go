@@ -10,7 +10,8 @@ import (
 )
 
 type config struct {
-	Port string
+	Port                  string
+	RequestLoggingEnabled bool
 }
 
 type application struct {
@@ -23,6 +24,7 @@ func main() {
 	var config config
 
 	flag.StringVar(&config.Port, "port", ":4000", "Port to run the server on")
+	flag.BoolVar(&config.RequestLoggingEnabled, "request-logging", true, "Enable request logging")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))

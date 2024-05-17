@@ -21,6 +21,7 @@ type Toy struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Category    string  `json:"category"`
+	Rented      bool    `json:"rented"`
 }
 
 func ValidateToy(v *validation.Validator, toy *Toy) {
